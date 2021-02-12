@@ -75,7 +75,7 @@ const proxy = httpProxy.createProxy({
   ws: true
 });
 
-const getSchema = async () => await loadSchema('http://localhost:3085/graphql', {
+const getSchema = async () => await loadSchema(GRAPHQL_URI, {
   // load from endpoint
   loaders: [new UrlLoader()]
 });
