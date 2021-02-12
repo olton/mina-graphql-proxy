@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+        html, body {
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        #app {
+            height: 100%;
+        }
+
+        .variable-editor-title button:nth-child(2) {
+            display: none!important;
+        }
+
+        .graphiql-explorer-root {
+            height: calc(100% - 20px)!important;
+        }
+    </style>
+
+    <link href="//cdn.jsdelivr.net/npm/graphiql@0.12.0/graphiql.css" rel="stylesheet" />
+
+    <script src="//cdn.jsdelivr.net/react/15.4.2/react.js"></script>
+    <script src="//cdn.jsdelivr.net/react/15.4.2/react-dom.js"></script>
+    <script src="//cdn.jsdelivr.net/gh/olton/graphiql-with-extensions@1.0.5/lib/graphiqlWithExtensions.min.js"></script>
+    <script src="//unpkg.com/subscriptions-transport-ws@0.8.1/browser/client.js"></script>
+    <script src="//unpkg.com/graphiql-subscriptions-fetcher@0.0.2/browser/client.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+    const defaultQuery = "query MyQuery1 { \n\tversion\n}";
+    const serverUrl = window.location.host + window.location.pathname;
+    const httpServerUrl = "http://" + serverUrl;
+    const wsServerUrl = "ws://" + serverUrl;
+
+    // Collect the URL parameters
+    const parameters = {};
+    window.location.search.substr(1).split('&').forEach(function (entry) {
+        const eq = entry.indexOf('=');
+        if (eq >= 0) {
+            parameters[decodeURIComponent(entry.slice(0, eq))] =
+                decodeURIComponent(entry.slice(eq + 1));
+        }
+    });
+
+    // Produce a Location query string from a parameter object.
+    function locationQuery(params) {
+        return '?' + Object.keys(params).map(function (key) {
+            return encodeURIComponent(key) + '=' +
+                encodeURIComponent(params[key]);
+        }).join('&');
+    }
+
+    // Derive a fetch URL from the current URL, sans the GraphQL parameters.
+    const graphqlParamNames = {
+        query: true,
+        variables: true,
+        operationName: true
+    };
+
+    const otherParams = {};
+    for (let k in parameters) {
+        if (parameters.hasOwnProperty(k) && graphqlParamNames[k] !== true) {
+            otherParams[k] = parameters[k];
+        }
+    }
+
+    // Defines a GraphQL fetcher using the fetch API.
+    function graphQLFetcher(graphQLParams) {
+        return fetch(httpServerUrl, {
+            method: 'post',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(graphQLParams),
+        }).then(function (response) {
+            return response.text();
+        }).then(function (responseBody) {
+            try {
+                return JSON.parse(responseBody);
+            } catch (error) {
+                return responseBody;
+            }
+        });
+    }
+
+    // When the query and variables string is edited, update the URL bar so
+    // that it can be easily shared.
+    function onEditQuery(newQuery) {
+        parameters.query = newQuery;
+        updateURL();
+    }
+
+    function onEditVariables(newVariables) {
+        parameters.variables = newVariables;
+        updateURL();
+    }
+
+    function onEditOperationName(newOperationName) {
+        parameters.operationName = newOperationName;
+        updateURL();
+    }
+
+    function updateURL() {
+        history.replaceState(null, null, locationQuery(parameters));
+    }
+
+    const subscriptionsClient = new SubscriptionsTransportWs.SubscriptionClient(wsServerUrl, { reconnect: true });
+    const subscriptionsFetcher = GraphiQLSubscriptionsFetcher.graphQLFetcher(subscriptionsClient, graphQLFetcher);
+
+    // Render <GraphiQL /> into the body.
+    ReactDOM.render(
+        React.createElement(GraphiQLWithExtensions.default, {
+            fetcher: subscriptionsFetcher,
+            onEditQuery: onEditQuery,
+            onEditVariables: onEditVariables,
+            onEditOperationName: onEditOperationName,
+            query: parameters.query || defaultQuery,
+            response: parameters.response,
+            variables: parameters.variables,
+            operationName: parameters.operationName,
+            serverUrl: httpServerUrl,
+            disableExplorer: false,
+            disableExporter: false,
+            explorerIsOpen: true,
+            exporterIsOpen: true,
+        }),
+        document.getElementById("app")
+    );
+</script>
+</body>
+</html>
