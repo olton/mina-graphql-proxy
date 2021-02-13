@@ -10,9 +10,9 @@ const fs = require('fs');
 
 const GRAPHQL_PROTOCOL = process.env["GRAPHQL_PROTOCOL"] || "http";
 const GRAPHQL_HOST = process.env["GRAPHQL_HOST"] || "localhost";
-const GRAPHQL_PORT = process.env["GRAPHQL_PORT"] || 3000;
+const GRAPHQL_PORT = process.env["GRAPHQL_PORT"] || 3085;
 const GRAPHQL_PATH = process.env["GRAPHQL_PATH"] || "/graphql";
-const GRAPHQL_PROXY_PORT = process.env["GRAPHQL_PROXY_PORT"] || 3085;
+const GRAPHQL_PROXY_PORT = process.env["GRAPHQL_PROXY_PORT"] || 3000;
 const GRAPHQL_PROXY_HOST = process.env["GRAPHQL_PROXY_HOST"] || "localhost";
 const GRAPHQL_URI = `${GRAPHQL_PROTOCOL}://${GRAPHQL_HOST}:${GRAPHQL_PORT}${GRAPHQL_PATH}`;
 
