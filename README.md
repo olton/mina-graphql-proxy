@@ -23,6 +23,32 @@ First. Clone the repository into you server
 > npm i
 ```
 
+### Hacks
+If you have server error 500 linked to `mutation` or `protocolStateProof` types, you must hack `node_modules/graphql/type/validate.js`.
+Comment line number ~229 with next code:
+```javascript
+function validateFields(context, type) {
+  var fields = (0, _objectValues5.default)(type.getFields()); // Objects and Interfaces both must define one or more fields.
+
+  if (fields.length === 0) {
+    //context.reportError("Type ".concat(type.name, " must define one or more fields."), getAllNodes(type));
+  }
+  ...
+}
+```
+
+### Build executable
+To build an executable file, you must add  `@vercel/ncc` utility.
+```console
+> npm i -g @vercel/ncc
+```
+Now you can use build command:
+```console
+> npm run build
+```
+The result executable file will be created in the `bin` directory.
+
+
 ### Env vars
 You can define environment variables to assign parameters for the proxy server.
 
