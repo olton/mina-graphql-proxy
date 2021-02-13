@@ -2,7 +2,7 @@ const express = require('express');
 const { graphqlHTTP } = require('express-graphql');
 const { loadSchema } = require('@graphql-tools/load');
 const { UrlLoader } = require('@graphql-tools/url-loader');
-const { wrapSchema, FilterRootFields } = require('@graphql-tools/wrap');
+const { wrapSchema, FilterRootFields, FilterTypes, FilterObjectFields, FilterInterfaceFields } = require('@graphql-tools/wrap');
 const http = require('http');
 const cors = require('cors');
 const httpProxy = require('http-proxy');
@@ -10,18 +10,11 @@ const fs = require('fs');
 
 const GRAPHQL_PROTOCOL = process.env["GRAPHQL_PROTOCOL"] || "http";
 const GRAPHQL_HOST = process.env["GRAPHQL_HOST"] || "localhost";
-const GRAPHQL_PORT = process.env["GRAPHQL_PORT"] || 3085;
+const GRAPHQL_PORT = process.env["GRAPHQL_PORT"] || 3000;
 const GRAPHQL_PATH = process.env["GRAPHQL_PATH"] || "/graphql";
-const GRAPHQL_PROXY_PORT = process.env["GRAPHQL_PROXY_PORT"] || 3000;
+const GRAPHQL_PROXY_PORT = process.env["GRAPHQL_PROXY_PORT"] || 3085;
 const GRAPHQL_PROXY_HOST = process.env["GRAPHQL_PROXY_HOST"] || "localhost";
 const GRAPHQL_URI = `${GRAPHQL_PROTOCOL}://${GRAPHQL_HOST}:${GRAPHQL_PORT}${GRAPHQL_PATH}`;
-
-const hiddenFields = [
-    "trackedWallets",
-    "currentSnarkWorker",
-    "initialPeers",
-    "wallet"
-];
 
 const extensions = ({
         document,
@@ -54,12 +47,18 @@ const getSchema = async () => await loadSchema(GRAPHQL_URI, {   // load from end
 });
 
 getSchema().then(function(remoteSchema){
+    const hiddenFields = [
+        "trackedWallets",
+        "currentSnarkWorker",
+        "initialPeers",
+        "wallet"
+    ];
     const schema = wrapSchema({
         schema: remoteSchema,
         transforms: [
             new FilterRootFields((operation, fieldName, field) => !field.isDeprecated),
             new FilterRootFields((operation, fieldName, field) => operation !== 'Mutation'),
-            new FilterRootFields((operation, fieldName, field) => hiddenFields.includes(fieldName) === false),
+            new FilterRootFields((operation, fieldName, field) => !hiddenFields.includes(fieldName)),
         ]
     });
 
@@ -92,6 +91,7 @@ getSchema().then(function(remoteSchema){
     server.on('upgrade', (req, socket, head) => {
         proxy.ws(req, socket, head);
     });
+
     server.listen(parseInt(GRAPHQL_PROXY_PORT), GRAPHQL_PROXY_HOST, () => {
         console.info(`Go to http://${GRAPHQL_PROXY_HOST}:${GRAPHQL_PROXY_PORT}/graphql to run queries!`);
     });

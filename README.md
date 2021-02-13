@@ -16,8 +16,16 @@ First. Clone the repository into you server
 > cd mina-graphql-proxy
 > node bin/index.js
 ```
+#### Environment variables
+The Proxy uses different environment variables. You can define ones to change proxy server behavior.
 
-### Develop preparing
+- `GRAPHQL_HOST` - host, where graphql started, default `localhost`
+- `GRAPHQL_PORT` - port, where graphql started, default `3085`
+- `GRAPHQL_PATH` - path to graphql service, default `graphql`
+- `GRAPHQL_PROXY_PORT` - proxy port, default `3000`
+- `GRAPHQL_PROXY_HOST` - proxy host, default `localhost`
+
+### Development, preparing
 ```
 > cd mina-graphql-proxy
 > npm i
@@ -25,7 +33,7 @@ First. Clone the repository into you server
 
 ### Hacks
 If you have server error 500 linked to `mutation` or `protocolStateProof` types, you must hack `node_modules/graphql/type/validate.js`.
-Comment line number ~229 with next code:
+Comment out line number ~229 (`context.reportError`):
 ```javascript
 function validateFields(context, type) {
   var fields = (0, _objectValues5.default)(type.getFields()); // Objects and Interfaces both must define one or more fields.
@@ -47,16 +55,6 @@ Now you can use build command:
 > npm run build
 ```
 The result executable file will be created in the `bin` directory.
-
-
-### Env vars
-You can define environment variables to assign parameters for the proxy server.
-
-- `GRAPHQL_HOST` - host, where graphql started, default `localhost`
-- `GRAPHQL_PORT` - port, where graphql started, default `3085`
-- `GRAPHQL_PATH` - path to graphql service, default `graphql`
-- `GRAPHQL_PROXY_PORT` - proxy port, default `3000`
-- `GRAPHQL_PROXY_HOST` - proxy host, default `localhost`
 
 ### License
 This project licensed under MIT license
