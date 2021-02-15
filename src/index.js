@@ -10,9 +10,9 @@ const fs = require('fs');
 
 const GRAPHQL_PROTOCOL = process.env["GRAPHQL_PROTOCOL"] || "http";
 const GRAPHQL_HOST = process.env["GRAPHQL_HOST"] || "localhost";
-const GRAPHQL_PORT = process.env["GRAPHQL_PORT"] || 3085;
+const GRAPHQL_PORT = process.env["GRAPHQL_PORT"] || 3000;
 const GRAPHQL_PATH = process.env["GRAPHQL_PATH"] || "/graphql";
-const GRAPHQL_PROXY_PORT = process.env["GRAPHQL_PROXY_PORT"] || 3000;
+const GRAPHQL_PROXY_PORT = process.env["GRAPHQL_PROXY_PORT"] || 3085;
 const GRAPHQL_PROXY_HOST = process.env["GRAPHQL_PROXY_HOST"] || "localhost";
 const GRAPHQL_URI = `${GRAPHQL_PROTOCOL}://${GRAPHQL_HOST}:${GRAPHQL_PORT}${GRAPHQL_PATH}`;
 
@@ -24,7 +24,8 @@ const extensions = ({
         context,
     }) => {
     return {
-        runTime: Date.now()
+        runTime: Date.now() - context.startTime,
+        timestamp: context.startTime
     };
 };
 
@@ -40,7 +41,7 @@ const proxy = httpProxy.createProxy({
     ws: true
 });
 
-const getSchema = async () => await loadSchema(GRAPHQL_URI, {   // load from endpoint
+const getSchema = async () => await loadSchema(GRAPHQL_URI, {
     loaders: [
         new UrlLoader()
     ]
@@ -66,17 +67,20 @@ getSchema().then(function(remoteSchema){
 
     app.post(
         '/graphql',
-        graphqlHTTP({
-            schema: schema,
-            graphiql: false,
-            customFormatErrorFn: (error) => ({
-                message: error.message,
-                locations: error.locations,
-                stack: error.stack ? error.stack.split('\n') : [],
-                path: error.path,
-            }),
-            extensions
-        }),
+        graphqlHTTP( (request, response, graphQLParams) => {
+            return {
+                schema: schema,
+                graphiql: false,
+                context: { startTime: Date.now() },
+                customFormatErrorFn: (error) => ({
+                    message: error.message,
+                    locations: error.locations,
+                    stack: error.stack ? error.stack.split('\n') : [],
+                    path: error.path,
+                }),
+                extensions
+            }
+        })
     );
 
     app.get(
