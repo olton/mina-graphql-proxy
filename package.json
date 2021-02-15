@@ -1,6 +1,6 @@
 {
   "name": "mina-graphql-proxy",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Proxy-server for Mina GraphQL",
   "main": "src/index.js",
   "keywords": [],
