@@ -2,13 +2,12 @@
   "name": "mina-graphql-proxy",
   "version": "1.0.0",
   "description": "Proxy-server for Mina GraphQL",
-
   "main": "src/index.js",
   "keywords": [],
   "author": "Serhii Pimenov",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon src/index.js",
+    "start": "cross-env GRAPHQL_PORT=3000 GRAPHQL_PROXY_PORT=3085 node src/index.js",
     "build": "rimraf -rf bin && mkdir bin && ncc build src/index.js -o bin -m"
   },
   "browserslist": [
@@ -30,6 +29,7 @@
     "@babel/core": "^7.12.16",
     "@babel/node": "^7.12.16",
     "@babel/preset-env": "^7.12.16",
+    "cross-env": "^7.0.3",
     "rimraf": "^3.0.2"
   }
 }

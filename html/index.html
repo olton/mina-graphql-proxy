@@ -27,8 +27,10 @@
 
     <script src="//cdn.jsdelivr.net/react/15.4.2/react.js"></script>
     <script src="//cdn.jsdelivr.net/react/15.4.2/react-dom.js"></script>
+
     <script src="//cdn.jsdelivr.net/gh/olton/graphiql-with-extensions@1.0.5/lib/graphiqlWithExtensions.min.js"></script>
-    <script src="//unpkg.com/subscriptions-transport-ws@0.8.1/browser/client.js"></script>
+
+    <script src="//unpkg.com/subscriptions-transport-ws@0.5.4/browser/client.js"></script>
     <script src="//unpkg.com/graphiql-subscriptions-fetcher@0.0.2/browser/client.js"></script>
 </head>
 <body>
@@ -39,7 +41,6 @@
     const httpServerUrl = "http://" + serverUrl;
     const wsServerUrl = "ws://" + serverUrl;
 
-    // Collect the URL parameters
     const parameters = {};
     window.location.search.substr(1).split('&').forEach(function (entry) {
         const eq = entry.indexOf('=');
@@ -49,7 +50,6 @@
         }
     });
 
-    // Produce a Location query string from a parameter object.
     function locationQuery(params) {
         return '?' + Object.keys(params).map(function (key) {
             return encodeURIComponent(key) + '=' +
@@ -57,7 +57,6 @@
         }).join('&');
     }
 
-    // Derive a fetch URL from the current URL, sans the GraphQL parameters.
     const graphqlParamNames = {
         query: true,
         variables: true,
@@ -71,7 +70,6 @@
         }
     }
 
-    // Defines a GraphQL fetcher using the fetch API.
     function graphQLFetcher(graphQLParams) {
         return fetch(httpServerUrl, {
             method: 'post',
@@ -91,8 +89,6 @@
         });
     }
 
-    // When the query and variables string is edited, update the URL bar so
-    // that it can be easily shared.
     function onEditQuery(newQuery) {
         parameters.query = newQuery;
         updateURL();
@@ -112,12 +108,12 @@
         history.replaceState(null, null, locationQuery(parameters));
     }
 
-    const subscriptionsClient = new SubscriptionsTransportWs.SubscriptionClient(wsServerUrl, { reconnect: true });
+    const subscriptionsClient = new SubscriptionsTransportWs.SubscriptionClient(wsServerUrl, {reconnect: true});
     const subscriptionsFetcher = GraphiQLSubscriptionsFetcher.graphQLFetcher(subscriptionsClient, graphQLFetcher);
 
-    // Render <GraphiQL /> into the body.
     ReactDOM.render(
         React.createElement(GraphiQLWithExtensions.default, {
+            // fetcher: graphQLFetcher,
             fetcher: subscriptionsFetcher,
             onEditQuery: onEditQuery,
             onEditVariables: onEditVariables,
