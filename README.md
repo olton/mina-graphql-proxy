@@ -31,7 +31,7 @@ The Proxy uses different environment variables. You can define ones to change pr
 > npm i
 ```
 
-### Hacks
+### Hacks (should be fixed in main-net)
 If you have server error 500 linked to `mutation` or `protocolStateProof` types, you must hack `node_modules/graphql/type/validate.js`.
 Comment out line number ~229 (`context.reportError`):
 ```javascript
