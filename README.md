@@ -25,24 +25,14 @@ The Proxy uses different environment variables. You can define ones to change pr
 - `GRAPHQL_PROXY_PORT` - proxy port, default `3000`
 - `GRAPHQL_PROXY_HOST` - proxy host, default `localhost`
 
+#### Proxy filters
+To change filters, edit file `config.js`. By default, buttons for adding mutations and subscriptions is disabled. 
+To enable require button, you must change styles in file `html/index.html`. 
+
 ### Development, preparing
 ```
 > cd mina-graphql-proxy
 > npm i
-```
-
-### Hacks (should be fixed in main-net)
-If you have server error 500 linked to `mutation` or `protocolStateProof` types, you must hack `node_modules/graphql/type/validate.js`.
-Comment out line number ~229 (`context.reportError`):
-```javascript
-function validateFields(context, type) {
-  var fields = (0, _objectValues5.default)(type.getFields()); // Objects and Interfaces both must define one or more fields.
-
-  if (fields.length === 0) {
-    //context.reportError("Type ".concat(type.name, " must define one or more fields."), getAllNodes(type));
-  }
-  ...
-}
 ```
 
 ### Build executable
