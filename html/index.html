@@ -14,7 +14,9 @@
             height: 100%;
         }
 
-        .variable-editor-title button:nth-child(2) {
+        .variable-editor-title button:nth-child(2),
+        .variable-editor-title button:nth-child(3)
+        {
             display: none!important;
         }
 
@@ -23,15 +25,18 @@
         }
     </style>
 
-    <link href="//cdn.jsdelivr.net/npm/graphiql@0.12.0/graphiql.css" rel="stylesheet" />
 
     <script src="//cdn.jsdelivr.net/react/15.4.2/react.js"></script>
     <script src="//cdn.jsdelivr.net/react/15.4.2/react-dom.js"></script>
 
-    <script src="//cdn.jsdelivr.net/gh/olton/graphiql-with-extensions@1.0.5/lib/graphiqlWithExtensions.min.js"></script>
+<!--    <link href="//cdn.jsdelivr.net/npm/graphiql@0.12.0/graphiql.css" rel="stylesheet" />-->
+    <link href="//cdn.jsdelivr.net/gh/olton/graphiql-with-extensions@1.0.6/lib/graphiql.css" rel="stylesheet" />
+    <script src="//cdn.jsdelivr.net/gh/olton/graphiql-with-extensions@1.0.6/lib/graphiqlWithExtensions.min.js"></script>
 
     <script src="//unpkg.com/subscriptions-transport-ws@0.5.4/browser/client.js"></script>
     <script src="//unpkg.com/graphiql-subscriptions-fetcher@0.0.2/browser/client.js"></script>
+
+    <link type="image/x-icon" rel="shortcut icon" href="//minastake.com/favicon.ico">
 </head>
 <body>
 <div id="app"></div>
@@ -108,13 +113,13 @@
         history.replaceState(null, null, locationQuery(parameters));
     }
 
-    const subscriptionsClient = new SubscriptionsTransportWs.SubscriptionClient(wsServerUrl, {reconnect: true});
-    const subscriptionsFetcher = GraphiQLSubscriptionsFetcher.graphQLFetcher(subscriptionsClient, graphQLFetcher);
+    // const subscriptionsClient = new SubscriptionsTransportWs.SubscriptionClient(wsServerUrl, {reconnect: true});
+    // const subscriptionsFetcher = GraphiQLSubscriptionsFetcher.graphQLFetcher(subscriptionsClient, graphQLFetcher);
 
     ReactDOM.render(
         React.createElement(GraphiQLWithExtensions.default, {
-            // fetcher: graphQLFetcher,
-            fetcher: subscriptionsFetcher,
+            fetcher: graphQLFetcher,
+            // fetcher: subscriptionsFetcher,
             onEditQuery: onEditQuery,
             onEditVariables: onEditVariables,
             onEditOperationName: onEditOperationName,

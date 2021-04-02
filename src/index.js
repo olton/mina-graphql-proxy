@@ -8,6 +8,8 @@ const cors = require('cors');
 const httpProxy = require('http-proxy');
 const fs = require('fs');
 
+const {rules} = require("./config.js");
+
 const GRAPHQL_PROTOCOL = process.env["GRAPHQL_PROTOCOL"] || "http";
 const GRAPHQL_HOST = process.env["GRAPHQL_HOST"] || "localhost";
 const GRAPHQL_PORT = process.env["GRAPHQL_PORT"] || 3085;
@@ -48,19 +50,26 @@ const getSchema = async () => await loadSchema(GRAPHQL_URI, {
 });
 
 getSchema().then(function(remoteSchema){
-    const hiddenFields = [
-        "trackedWallets",
-        "currentSnarkWorker",
-        "initialPeers",
-        "wallet"
+    const transforms = [
+        new FilterRootFields((operation, fieldName, field) => !field.isDeprecated),
     ];
+
+    if (rules) {
+        if (Array.isArray(rules.excludeTypes)) {
+            transforms.push(new FilterTypes((type) => !rules.excludeTypes.includes(type.name)))
+        }
+        if (Array.isArray(rules.excludeOperations)) {
+            rules.excludeOperations.forEach( o => {
+                transforms.push(new FilterRootFields((operation) => operation !== o));
+            })
+        }
+        if (Array.isArray(rules.excludeFields)) {
+            transforms.push(new FilterRootFields((operation, fieldName) => !rules.excludeFields.includes(fieldName)))
+        }
+    }
     const schema = wrapSchema({
         schema: remoteSchema,
-        transforms: [
-            new FilterRootFields((operation, fieldName, field) => !field.isDeprecated),
-            new FilterRootFields((operation, fieldName, field) => operation !== 'Mutation'),
-            new FilterRootFields((operation, fieldName, field) => !hiddenFields.includes(fieldName)),
-        ]
+        transforms: transforms
     });
 
     app.use(cors());
