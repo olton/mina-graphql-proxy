@@ -29,6 +29,26 @@ The Proxy uses different environment variables. You can define ones to change pr
 To change filters, edit file `config.js`. By default, buttons for adding mutations and subscriptions is disabled. 
 To enable require button, you must change styles in file `html/index.html`. 
 
+#### Default config
+```javascript
+rules = {
+    excludeOperations: [
+        "Mutation",
+        "Subscription"
+    ],
+    excludeFields: [
+        "trackedWallets",
+        "currentSnarkWorker",
+        "initialPeers",
+        "wallet"
+    ],
+    excludeTypes: [
+        "mutation",
+        "subscription"
+    ]
+}
+```
+
 ### Development, preparing
 ```
 > cd mina-graphql-proxy
